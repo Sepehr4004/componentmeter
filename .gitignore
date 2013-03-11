@@ -81,6 +81,9 @@ local.properties
 *.sym
 *.elf
 *.eep
+*.pnproj
+*.pnps
+
 
 ## TODO: If you have NuGet Package Restore enabled, uncomment this
 #packages/
