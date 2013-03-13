@@ -15,7 +15,7 @@
 
 
 //
-#define R_DIV_2 700
+#define VAL 700
 #define R_TOP   1000
 // variables 
 uint8_t i;
@@ -57,7 +57,7 @@ uint8_t calcula_r (struct res *r)
 	adcval = ReadAdc(RVIN);
 	OUTPUT_Z(RM1);
 
-    if (adcval <= R_DIV_2)
+    if (adcval <= VAL)
 	{
 		r->valor = formula_r(adcval, 1);
 		return 1;
@@ -68,7 +68,7 @@ uint8_t calcula_r (struct res *r)
 	_delay_ms(100);
 	adcval = ReadAdc(RVIN);
 	OUTPUT_Z(RM2);
-	if (adcval <= R_DIV_2) 
+	if (adcval <= VAL) 
 	{
 		r->valor = formula_r(adcval, 2);
 		return 2;
@@ -79,7 +79,7 @@ uint8_t calcula_r (struct res *r)
 	_delay_ms(100);
 	adcval = ReadAdc(RVIN);
 	OUTPUT_Z(RM3);
-	if (adcval <= R_DIV_2) 
+	if (adcval <= VAL) 
 	{
 		r->valor = formula_r(adcval, 3);
 		return 3;
@@ -90,7 +90,7 @@ uint8_t calcula_r (struct res *r)
 	_delay_ms(100);
 	adcval = ReadAdc(RVIN);
 	OUTPUT_Z(RM4);
-	if ( adcval < R_TOP ) 
+	if ( adcval < VAL ) 
 	{
 		r->valor = formula_r(adcval, 4);
 		return 4;

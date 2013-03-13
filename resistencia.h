@@ -10,7 +10,7 @@
 
 #define RM2_PORT	PORTC
 #define RM2_DDR     (*(&RM2_PORT-1))
-#define RM2			3 //changed 6 by 3
+#define RM2			6
 
 #define RM3_PORT	PORTD
 #define RM3_DDR		(*(&RM3_PORT-1))

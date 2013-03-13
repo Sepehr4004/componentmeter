@@ -79,7 +79,7 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c lcd_3_wire.c shiftregister.c init.c adc.c freq_counter.c transistor.c resistencia.c
+SRC = $(TARGET).c lcd_3_wire.c shiftregister.c init.c adc.c freq_counter.c transistor.c resistencia.c menu.c
 
 
 # List C++ source files here. (C dependencies are automatically generated.)
