@@ -4,7 +4,7 @@
 void init_devices(void)
 {
    //Initialize LCD module
-   LCDInit(LS_BLINK|LS_ULINE);
+   LCDInit(LS_NONE);
 	
    //Clear the screen
    LCDClear();

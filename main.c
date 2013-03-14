@@ -34,9 +34,17 @@ int main(void)
    PORTC &= ~(1<<5);
    _delay_ms(1000);*/
     LCDClear();
-    //sprintf(string,"%lu",freq_counter_read());
-    //LCDWriteString("freq:");
-    //LCDWriteStringXY(8,0, string );
+    //
+    //float cref = , lref
+    float calcul;
+	float fr = freq_counter_read()/1000.0;
+	calcul = (1.0/(2.0*3.141592654*fr));
+	calcul = calcul * calcul;
+	calcul = calcul * (1000.0/0.0845097);
+	calcul = calcul - 0.001; // uF
+    sprintf(string,"freq: %f",(calcul*1000.0));
+    LCDWriteStringXY(0,0, string );
+  	_delay_ms(500);
     //trt = transistor_check();
     //sprintf(string, "%d %d %d", ReadAdc(1),ReadAdc(2),ReadAdc(3));
     //LCDWriteString(string);*/
@@ -48,14 +56,8 @@ int main(void)
     sprintf(string, "res = %d", res );
     LCDGotoXY(0,1);
     LCDWriteString(string);*/
-    
+ /*   
     menu(P_MES);
-    _delay_ms(500);
-    menu(P_MES);
-    _delay_ms(500);
-    menu(P_OK);
-    _delay_ms(500);
-    menu(P_OK);
     _delay_ms(500);
     menu(P_MES);
     _delay_ms(500);
@@ -63,7 +65,15 @@ int main(void)
     _delay_ms(500);
     menu(P_OK);
     _delay_ms(500);
-    
+    menu(P_OK);
+    _delay_ms(500);
+    menu(P_MES);
+    _delay_ms(500);
+    menu(P_MES);
+    _delay_ms(500);
+    menu(P_OK);
+    _delay_ms(500);
+    */
    }
 
    return 0;

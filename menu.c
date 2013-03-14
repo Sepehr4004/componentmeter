@@ -1,11 +1,13 @@
 #include "menu.h"
-#include "string.h"
+
 #include "lcd_3_wire.h"
 #include "transistor.h"
 #include "resistencia.h"
 #include "freq_counter.h"
 
 #include <avr/pgmspace.h> 
+#include <string.h>
+#include <stdio.h>
 
 
 #define MENU1 1
@@ -17,9 +19,9 @@ char menu1_L[] PROGMEM = "2.Inductancia   ";
 char menu1_R[] PROGMEM = "3.Resistencia   ";
 char menu1_T[] PROGMEM = "4.Transistor    ";
 
-char menu2_Llegir[] PROGMEM = "LLEGIR        ";
-char menu2_Cal[] PROGMEM = 	  "CAL           ";
-char menu2_Enrere[] PROGMEM = "ENRERE        ";
+char menu2_Llegir[] PROGMEM = "LLEGIR          ";
+char menu2_Cal[] PROGMEM = 	  "CAL             ";
+char menu2_Enrere[] PROGMEM = "ENRERE          ";
 
 PGM_P menu1_strings[] PROGMEM = 
 {
@@ -54,12 +56,19 @@ char string[17];
 void llegir_transistor(void)
 {
 	struct bjt transistor;
-	transistor = transistor_check();
-	//calculate_beta(&transistor);
+	char pins[3];
 	
-	//memset(string, ' ', sizeof(string));
-	//strcpy_P(string, (PGM_P)pgm_read_word(&(menu1_strings[i]))); // copiem el valor al string
-	//LCDWriteStringXY(0, 0, string);
+	transistor = transistor_check();
+	calculate_beta(&transistor);
+	pins[transistor.base-1] = 'B';
+	pins[transistor.colector-1] = 'C';
+	pins[transistor.emisor-1] = 'E';
+	
+	memset(string, ' ', sizeof(string));
+	sprintf(string, "1:%c 2:%c 3:%c %s", pins[0], pins[1], pins[2], transistor.tipus == NPN ? "NPN" : "PNP" );
+	LCDWriteStringXY(0, 0, string);
+	sprintf(string, "Beta:%4d       ", transistor.beta);
+	LCDWriteStringXY(0, 1, string);
 	
 }
 
@@ -71,10 +80,13 @@ void llegir_condensador(void)
 void llegir_resistencia(void)
 {
 	struct res r;
+	uint8_t i;
+	
     calcula_r(&r);
         
     sprintf(string,"R:%lu",r.valor);
     LCDWriteStringXY(0, 0, string);
+    for(i=strlen(string); i < 16; i++) LCDData(' ');
 }
 
 void llegir_inductancia(void)
@@ -178,6 +190,7 @@ void menu(polsador_t tecla)
 			case ENRERE:
 				menu_flag = MENU1;
 				menu2 = 0; // reiniciem el contador del menu2
+				menu1_print(menu1);
 				break;
 				
          }

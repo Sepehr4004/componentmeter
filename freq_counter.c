@@ -5,6 +5,7 @@
 
 // Global variables
 volatile unsigned char overflow;
+uint32_t calfreq = 500000;
 
 ISR(TIMER1_OVF_vect)
 {
@@ -29,32 +30,33 @@ void freq_counter_init(void)
 }
 
 
-uint32_t freq_counter_read(void)
+float freq_counter_read(void)
 {
-   // init values
-   uint32_t freq = 0;
+   // inicialitza valors
+   float freq = 0;
    overflow = 0;
    
-   // CLEAR TIMER 1 VALUE
+   // neteja valor timer1
    TCNT1 = 0; 
    
-   // TIMER1 INTERRUPT FLAG REGISTER
-   // Clear all flags by writing a logic one
+
+   // neteja tots els flags escrivint un 1
    TIFR1 = 0xff;
    
-   // TIMER1 INTERRUPT MASK REGISTER
-   // enable interrupt on overflow
+   // habilita la interrupcio d'overflow
    TIMSK1 |= (1 << TOIE1);
    
-   // ENSURE GLOBAL INTERRUPTS ARE ENABLED
+   // activem interrupcions globals
    sei();
-   
+
+   // 100ms
    _delay_ms(100);
    
-   // disable interrupt on overflow
+   // deshabilitem la interrupcio 
    TIMSK1 &= ~(1 << TOIE1);
-   
-   freq = ((unsigned long)(overflow*65536)+TCNT1)*10;//(uint32_t)(overflow * 65536)+TCNT1;
+
+   // calcula la freqüencia
+   freq = ((float)(overflow*65536)+TCNT1)*10;
    
    return freq;
    

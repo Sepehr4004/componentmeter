@@ -136,7 +136,7 @@ struct bjt transistor_check(void)
             }
         }
     }
-    
+/*    
     calculate_beta(&transistor);
     sprintf(string, "B:%d C:%d E:%d %s", transistor.base, transistor.colector, transistor.emisor,
 										transistor.tipus == 0 ? "NPN" : "PNP");
@@ -149,8 +149,7 @@ struct bjt transistor_check(void)
 	//sprintf(string, "%x %x %x %x", DDRB, DDRC, PORTB, PORTC);
 	i++;
     LCDWriteString(string);
-
-	
+*/
 	return transistor;
 }
 
