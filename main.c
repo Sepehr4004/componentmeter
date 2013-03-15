@@ -10,6 +10,7 @@
 #include "freq_counter.h"
 #include "transistor.h"
 #include "resistencia.h"
+#include "funcions_LC.h"
 
 #include "menu.h"
 
@@ -23,10 +24,13 @@ uint8_t j;
 #define BIT_SET(r,b) ((r)|=(1<<(b)))
 #define BIT_CLEAR(r,b) ((r)&=~(1<<(b)))
 
+
+
 // Programa principal
 int main(void)
 {
    init_devices();
+   cal_LC();
    while(1)
    {
 /*   PORTC |= 1 << 5;
@@ -37,12 +41,15 @@ int main(void)
     //
     //float cref = , lref
     float calcul;
-	float fr = freq_counter_read()/1000.0;
+
+    calcul = calcula_L();
+	/*float fr = freq_counter_read();
 	calcul = (1.0/(2.0*3.141592654*fr));
 	calcul = calcul * calcul;
 	calcul = calcul * (1000.0/0.0845097);
 	calcul = calcul - 0.001; // uF
-    sprintf(string,"freq: %f",(calcul*1000.0));
+       */
+    sprintf(string,"freq: %f",calcul);
     LCDWriteStringXY(0,0, string );
   	_delay_ms(500);
     //trt = transistor_check();

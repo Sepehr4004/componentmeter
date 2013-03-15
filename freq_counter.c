@@ -56,7 +56,7 @@ float freq_counter_read(void)
    TIMSK1 &= ~(1 << TOIE1);
 
    // calcula la freqüencia
-   freq = ((float)(overflow*65536)+TCNT1)*10;
+   freq = ((float)(overflow*65536)+TCNT1)/100.0; // freq en khz
    
    return freq;
    
