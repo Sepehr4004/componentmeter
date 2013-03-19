@@ -1,5 +1,6 @@
 #include <avr/io.h>
 #include <util/delay.h>
+#include <avr/interrupt.h>
 #include "shiftregister.h"
 
 #include <strings.h>
@@ -20,35 +21,71 @@ char string[16];
 struct bjt trt;
 struct res r;
 uint8_t j;
+polsador_t polsador;
+uint8_t flag_polsador;
 
 #define BIT_SET(r,b) ((r)|=(1<<(b)))
 #define BIT_CLEAR(r,b) ((r)&=~(1<<(b)))
 
+#define PMES_PORT	PORTD
+#define PMES_DDR    (*(&PMES_PORT-1))
+#define PMES_INPUT  (*(&PMES_PORT-2))
+#define PMES_PIN	2
+
+#define POK_PORT	PORTD
+#define POK_DDR   	(*(&POK_PORT-1))
+#define POK_INPUT 	(*(&POK_PORT-2))
+#define POK_PIN		3
+
+
+ISR(INT0_vect)
+{
+	flag_polsador = 1;
+	polsador = P_MES;
+}
+
+ISR(INT1_vect)
+{
+	flag_polsador = 1;
+	polsador = P_OK;
+}
+
+
+
+void polsadors_init(void)
+{
+	// configurem pins PMES i POK com a entrada
+    PMES_DDR &= ~(1<<PMES_PIN);
+    POK_DDR &= ~(1<<POK_PIN);
+
+    // activem pull-up
+    PMES_PORT |= (1<<PMES_PIN);
+    POK_PORT |= (1<<POK_PIN);
+
+    // configurem interrupcions INT0 i INT1
+    // activacio per nivell baix
+    EICRA = 0x00;
+
+    // habilitem les interrupcions
+    EIMSK |= (1<<INT1) | (1<<INT0);
+}
 
 
 // Programa principal
 int main(void)
 {
    init_devices();
+   polsadors_init();
    cal_LC();
    while(1)
    {
-/*   PORTC |= 1 << 5;
-   _delay_ms(1000);
-   PORTC &= ~(1<<5);
-   _delay_ms(1000);*/
-    LCDClear();
-    //
-    //float cref = , lref
-    float calcul;
+    LCDGotoXY(0,0);
+   /*LCDClear();*/
+
+/*    float calcul;
 
     calcul = calcula_L();
-	/*float fr = freq_counter_read();
-	calcul = (1.0/(2.0*3.141592654*fr));
-	calcul = calcul * calcul;
-	calcul = calcul * (1000.0/0.0845097);
-	calcul = calcul - 0.001; // uF
-       */
+
     sprintf(string,"freq: %f",calcul);
     LCDWriteStringXY(0,0, string );
   	_delay_ms(500);
@@ -63,25 +100,14 @@ int main(void)
     sprintf(string, "res = %d", res );
     LCDGotoXY(0,1);
     LCDWriteString(string);*/
- /*   
-    menu(P_MES);
-    _delay_ms(500);
-    menu(P_MES);
-    _delay_ms(500);
-    menu(P_MES);
-    _delay_ms(500);
-    menu(P_OK);
-    _delay_ms(500);
-    menu(P_OK);
-    _delay_ms(500);
-    menu(P_MES);
-    _delay_ms(500);
-    menu(P_MES);
-    _delay_ms(500);
-    menu(P_OK);
-    _delay_ms(500);
-    */
-   }
+
+if (flag_polsador == 1)
+{
+	flag_polsador = 0;
+    menu(polsador);
+}
+
+}
 
    return 0;
 }

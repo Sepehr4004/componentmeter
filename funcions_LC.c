@@ -10,7 +10,7 @@
 // el compilador crea un fitxer .eep
 float EEMEM freq0_cal = 0;
 
-void cal_LC (void)
+void calibra_LC (void)
 {
 	float freq;
 

@@ -137,7 +137,6 @@ void menu1_print(uint8_t i)
 
 void menu2_print(uint8_t i)
 {
-	char string[16];
     memset(string, ' ', sizeof(string));
 	strcpy_P(string, (PGM_P)pgm_read_word(&(menu2_strings[i]))); // copiem el valor al string
 	LCDWriteStringXY(0, 1, string);

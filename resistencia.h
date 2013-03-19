@@ -24,10 +24,6 @@
 #define RVIN_DDR    (*(&RVIN_PORT-1))
 #define RVIN		4
 
-//
-#define PNP     1
-#define NPN     0
-
 
 // definicio d'estructures de dades
 struct res

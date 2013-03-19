@@ -4,7 +4,7 @@
 
 // prototip de les funcions
 
-void cal_LC(void);
+void calibra_LC(void);
 
 float calcula_C(void);
 
