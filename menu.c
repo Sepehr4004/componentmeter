@@ -3,6 +3,7 @@
 #include "lcd_3_wire.h"
 #include "transistor.h"
 #include "resistencia.h"
+#include "funcions_LC.h"
 #include "freq_counter.h"
 
 #include <avr/pgmspace.h> 
@@ -48,7 +49,7 @@ enum menu2_estats
 
 static uint8_t menu1 = 0; // menu1 actiu opcio1
 static uint8_t menu2 = 0;
-static uint8_t menu_flag = MENU1; // inicialitzem el punter amb el menu1 
+static uint8_t menu_flag = MENU1; //inicialment carreguem menu1 
 
 char string[17];
 
@@ -64,7 +65,7 @@ void llegir_transistor(void)
 	pins[transistor.colector-1] = 'C';
 	pins[transistor.emisor-1] = 'E';
 	
-	memset(string, ' ', sizeof(string));
+	memset(string, '\0', sizeof(string));
 	sprintf(string, "1:%c 2:%c 3:%c %s", pins[0], pins[1], pins[2], transistor.tipus == NPN ? "NPN" : "PNP" );
 	LCDWriteStringXY(0, 0, string);
 	sprintf(string, "Beta:%4d       ", transistor.beta);
@@ -74,8 +75,61 @@ void llegir_transistor(void)
 
 void llegir_condensador(void)
 {
+	float calcul;
+	char unitat;
+
+	calcul = calcula_C();
+
+	if (calcul<1.0)
+	{
+   		calcul=calcul*1000.0;
+        unitat = 'n';
+    
+    	if (calcul<1.0)
+    	{
+        	calcul=calcul*1000.0;
+        	unitat = 'p';
+    	}
+    }
+    else 
+    {
+		unitat = 'u';
+    }
+	
+	LCDClear();
+	sprintf(string,"C: %3.2f%cF",calcul,unitat);
+    LCDWriteStringXY(0,0, string );
+}
+
+void llegir_inductancia(void)
+{
+	float calcul;
+	char unitat;
+
+	calcul = calcula_L();
+
+	if (calcul<1.0)
+	{
+   		calcul=calcul*1000.0;
+        unitat = 'n';
+    }
+    else if ( calcul > 1000.0 )
+    {
+        calcul=calcul/1000.0;
+       	unitat = 'm';
+    }
+    else 
+    {
+		unitat = 'u';
+    }
+	
+	LCDClear();
+	sprintf(string,"L: %3.2f%cH",calcul,unitat);
+    LCDWriteStringXY(0,0, string );
 
 }
+
+
 
 void llegir_resistencia(void)
 {
@@ -87,22 +141,18 @@ void llegir_resistencia(void)
     sprintf(string,"R:%lu",r.valor);
     LCDWriteStringXY(0, 0, string);
     for(i=strlen(string); i < 16; i++) LCDData(' ');
-}
-
-void llegir_inductancia(void)
-{
-
+    LCDWriteStringXY(0, 1, string);
 }
 
 // funcions de calibració
 void cal_condensador(void)
 {
-
+	calibra_LC();
 }
 
 void cal_inductancia(void)
 {
-
+	calibra_LC();
 }
 
 void cal_resistencia(void)
@@ -110,7 +160,7 @@ void cal_resistencia(void)
 
 }
 
-// punters de funcions per fer el codi del menu més llegible
+// punters a funcions per fer el codi del menu més compacte i entenedor
 void (*llegir_f_ptr[4])(void) = 
 {
 	&llegir_condensador,
@@ -123,24 +173,31 @@ void (*cal_f_ptr[4])(void) =
 {
 	&cal_condensador,
 	&cal_inductancia,
-	&llegir_resistencia,
+	&cal_resistencia,
 	NULL,
 };
 
 
 void menu1_print(uint8_t i)
 {
-    memset(string, ' ', sizeof(string));
+    memset(string, '\0', sizeof(string));
+    LCDClear();
 	strcpy_P(string, (PGM_P)pgm_read_word(&(menu1_strings[i]))); // copiem el valor al string
 	LCDWriteStringXY(0, 0, string);
 }
 
 void menu2_print(uint8_t i)
 {
-    memset(string, ' ', sizeof(string));
+    memset(string, '\0', sizeof(string));
 	strcpy_P(string, (PGM_P)pgm_read_word(&(menu2_strings[i]))); // copiem el valor al string
 	LCDWriteStringXY(0, 1, string);
 }
+
+void menu_init()
+{
+	menu1_print(0); // escriu el primer valor al LCD
+}
+
 
 void menu(polsador_t tecla)
 {

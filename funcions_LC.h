@@ -3,6 +3,7 @@
 #define _FUNCIONS_LC_H
 
 // prototip de les funcions
+void init_LC(void);
 
 void calibra_LC(void);
 

@@ -8,13 +8,13 @@
 #define DATA_DDR    (*(&DATA_PORT-1))
 #define DATA_BIT    7
 
-#define CLOCK_PORT  PORTD
+#define CLOCK_PORT  PORTB
 #define CLOCK_DDR   (*(&CLOCK_PORT-1))
-#define CLOCK_BIT   6
+#define CLOCK_BIT   0
 
-#define LATCH_PORT  PORTB
+#define LATCH_PORT  PORTD
 #define LATCH_DDR   (*(&LATCH_PORT-1))
-#define LATCH_BIT   0
+#define LATCH_BIT   6
 
 
 // FUNCIONS

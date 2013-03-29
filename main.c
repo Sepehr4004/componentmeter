@@ -42,12 +42,14 @@ ISR(INT0_vect)
 {
 	flag_polsador = 1;
 	polsador = P_MES;
+   _delay_ms(10);
 }
 
 ISR(INT1_vect)
 {
 	flag_polsador = 1;
 	polsador = P_OK;
+   _delay_ms(10);
 }
 
 
@@ -68,6 +70,8 @@ void polsadors_init(void)
 
     // habilitem les interrupcions
     EIMSK |= (1<<INT1) | (1<<INT0);
+
+    sei();
 }
 
 
@@ -75,20 +79,22 @@ void polsadors_init(void)
 int main(void)
 {
    init_devices();
+   init_LC();
+   menu_init();
    polsadors_init();
-   cal_LC();
    while(1)
    {
     LCDGotoXY(0,0);
    /*LCDClear();*/
 
-/*    float calcul;
+/*
+    float calcul;
 
-    calcul = calcula_L();
+    calcul = calcula_C();
 
     sprintf(string,"freq: %f",calcul);
     LCDWriteStringXY(0,0, string );
-  	_delay_ms(500);
+  	_delay_ms(500);*/
     //trt = transistor_check();
     //sprintf(string, "%d %d %d", ReadAdc(1),ReadAdc(2),ReadAdc(3));
     //LCDWriteString(string);*/
