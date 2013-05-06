@@ -1,23 +1,33 @@
+/*************************************
+ * Nom del arxiu: transistor.c
+ * Autor: Miguel Angel Borrego
+ * Data: 31/03/2013
+ * Compilador: WinAvr 20100110
+ * Descripció: Funcions necessàries per 
+ * comprovar un transistor.
+ **************************************/
+
 #include <avr/io.h>
 #include <util/delay.h>
-#include "transistor.h"
 #include "adc.h"
-#include "lcd_3_wire.h"
+#include "transistor.h"
 
+// macros per direccionar bits
 #define BIT_SET(r,b) ((r)|=(1<<(b)))
 #define BIT_CLEAR(r,b) ((r)&=~(1<<(b)))
 
 uint8_t i;
-extern char string[16];
 
-
-struct bjt transistor_check(void)
+// posa la configuració del transistor al punter
+// que es passa com a paràmetre d'entrada
+uint8_t transistor_check(struct bjt* transistor)
 {
     uint16_t value[6] = {0,0,0,0,0,0};
 
-	struct bjt transistor = {0,0,0,0,0};
+    // inicialitzem els valors a 0
+    memset(transistor, 0, sizeof(transistor)); 
 	
-    // comprovem caiguda de tensio entre TP1 i TP2
+    // comprovem caiguda de tensio entre pins
     value[0] = check(TP1, TP2);
     value[1] = check(TP1, TP3);
     value[2] = check(TP2, TP1);
@@ -25,153 +35,138 @@ struct bjt transistor_check(void)
     value[4] = check(TP3, TP1);
     value[5] = check(TP3, TP2);
     
-
+    // mirem si es NPN amb base al pin 1
     if (value[0] < 1000)
     {
         if (value[1] < 1000)
         {
-            transistor.base = TP1;
-            transistor.tipus = NPN;
+            transistor->base = TP1;
+            transistor->tipus = NPN;
             
             if (value[0] < value[1])
             {
-                transistor.colector = TP2;
-                transistor.emisor = TP3;
+                transistor->colector = TP2;
+                transistor->emisor = TP3;
             }
             else
             {
-                transistor.colector = TP3;
-                transistor.emisor = TP2;
+                transistor->colector = TP3;
+                transistor->emisor = TP2;
             }
         }
+
+        // Mirem si es PNP amb base al pin 2
         else if (value[5] < 1000)
         {
-            transistor.base = TP2;
-            transistor.tipus = PNP;
+            transistor->base = TP2;
+            transistor->tipus = PNP;
             
             if (value[0] < value [5])
             {
-                transistor.colector = TP1;
-                transistor.emisor = TP3;
+                transistor->colector = TP1;
+                transistor->emisor = TP3;
             }
             else
             {
-                transistor.colector = TP3;
-                transistor.emisor = TP1;
+                transistor->colector = TP3;
+                transistor->emisor = TP1;
             }
-        }
+       	}
     }
-    else if (value[1] < 1000)
-    {
-        
-        if (value[3] < 1000)
-        {
-            transistor.base = TP3;
-            transistor.tipus = PNP;
-            
-            if (value[1] < value[3])
-            {
-                transistor.colector = TP1;
-                transistor.emisor = TP2;
-            }
-            else 
-            {
-                transistor.colector = TP2;
-                transistor.emisor = TP1;
-            }
-        }
-        
-    }
+
+	// mirem si es NPN amb base al pin 2
     else if (value[2] < 1000)
     {
         if (value[3] < 1000)
         {
-            transistor.base = TP2;
-            transistor.tipus = NPN;
+            transistor->base = TP2;
+            transistor->tipus = NPN;
             
             if (value[2] < value[3])
             {
-                transistor.colector = TP1;
-                transistor.emisor = TP3;
+                transistor->colector = TP1;
+                transistor->emisor = TP3;
             }
             else
             {
-                transistor.colector = TP3;
-                transistor.emisor = TP1;
+                transistor->colector = TP3;
+                transistor->emisor = TP1;
             }
         }
+        
+        // Mirem si es PNP amb base al pin 1
         else if (value[4] < 1000)
         {
-            transistor.base = TP1;
-            transistor.tipus = PNP;
+            transistor->base = TP1;
+            transistor->tipus = PNP;
             
-            if(value[2] < value[4])
+            if (value[2] < value [4])
             {
-                transistor.colector = TP2;
-                transistor.emisor = TP3;
+                transistor->colector = TP2;
+                transistor->emisor = TP3;
             }
             else
             {
-                transistor.colector = TP3;
-                transistor.emisor = TP2;
+                transistor->colector = TP3;
+                transistor->emisor = TP2;
             }
-        }
+      	}
     }
-    else if( value[4] < 1000)
+
+    // Mirem si es NPN amb base al pin 3
+    else if ( value[4] < 1000)
     {
         if (value[5] < 1000)
         {
-            transistor.base = TP3;
-            transistor.tipus = NPN;
+            transistor->base = TP3;
+            transistor->tipus = NPN;
             
             if (value[4] < value[5])
             {
-                transistor.colector = TP1;
-                transistor.emisor = TP2;
+                transistor->colector = TP1;
+                transistor->emisor = TP2;
             }
             else
             {
-                transistor.colector = TP2;
-                transistor.emisor = TP1;
+                transistor->colector = TP2;
+                transistor->emisor = TP1;
             }
         }
     }
-/*    
-    calculate_beta(&transistor);
-    sprintf(string, "B:%d C:%d E:%d %s", transistor.base, transistor.colector, transistor.emisor,
-										transistor.tipus == 0 ? "NPN" : "PNP");
-    LCDClear();
-    LCDWriteString(string);
-    LCDGotoXY(0,1);
-	i=i%6;
-	//tr_init();
-    sprintf(string, "Beta: %d %d:%d", transistor.beta,i, value[i] );
-	//sprintf(string, "%x %x %x %x", DDRB, DDRC, PORTB, PORTC);
-	i++;
-    LCDWriteString(string);
-*/
-	return transistor;
+
+	// Mirem si es PNP amb base al pin 3
+	if (value[1] < 1000)
+	{
+        if (value[3] < 1000)
+        {
+            transistor->base = TP3;
+            transistor->tipus = PNP;
+            
+            if (value[1] < value[3])
+            {
+                transistor->colector = TP1;
+                transistor->emisor = TP2;
+            }
+            else 
+            {
+                transistor->colector = TP2;
+                transistor->emisor = TP1;
+            }
+        }
+	}
+
+	// retorna 0 (error) si no s'ha trobat una configuració bona
+	if (transistor->colector == transistor->emisor) return 0;
+    else return 1;
 }
 
+// retorna el valor resultant de polaritzar dos pins del transistor
 uint16_t check ( uint8_t high, uint8_t low )
 {
     uint16_t adc_value = 0;
 
 	tr_init();
 	
- /*   // inicialitza els pins
-    ADCDDR &= ~((1 << ADC0) | (1 << ADC1) | (1 << ADC2)); // ADC com a entrada
-    ADCPORT &= ~((1 << ADC0) | (1 << ADC1) | (1 << ADC2)); // deshabilita resistencies pull-up
-
-    RDDR &= ~((1 << R0) | (1 << R1) | (1 << R2)); // resistencies sense cap voltage
-    RPORT &= ~((1 << R0) | (1 << R1) | (1 << R2)); // deshabilita resistencies pull-up
-	
-    RHDDR &= ~((1 << RH0) | (1 << RH1) | (1 << RH2));
-    RHPORT &= ~((1 << RH0) | (1 << RH1) | (1 << RH2)); 
- */
-    // configura els pins segons els parametres
- /*   RDDR |= (1 << high);
-    RPORT |= (1 << high);*/
     // configura el pins amb la resistencia petita
 	if (high == TP1)
 	{
@@ -205,22 +200,12 @@ uint16_t check ( uint8_t high, uint8_t low )
 		BIT_SET(TP3_DDR, TP3);
 		BIT_CLEAR(TP3_PORT, TP3);
 	}
-/*
-    ADCDDR |= (1 << low);
-    ADCPORT &= ~(1 << low);
- */   
+
     // esperem a que el senyal sigui estable
     _delay_ms(100);
 
     // mesurem la caiguda de tensio
     adc_value = ReadAdc(high);
-
-    // inicialitza els pins
-    /*ADCDDR &= ~((1 << ADC0) | (1 << ADC1) | (1 << ADC2)); // ADC com a entrada
-    ADCPORT &= ~((1 << ADC0) | (1 << ADC1) | (1 << ADC2)); // deshabilita resistencies pull-up
-
-    RDDR &= ~((1 << R0) | (1 << R1) | (1 << R2)); // resistencies sense cap voltage
-    RPORT &= ~((1 << R0) | (1 << R1) | (1 << R2)); // deshabilita resistencies pull-up*/
 
 	// configura pins a alta impedancia
 	tr_init();
@@ -230,17 +215,9 @@ uint16_t check ( uint8_t high, uint8_t low )
 
 
 
-//
+// calcula la beta, es passa el transistor com a paràmetre
 uint8_t calculate_beta (struct bjt* tr)
 {
-    /*ADCDDR &= ~((1 << ADC0) | (1 << ADC1) | (1 << ADC2)); // ADC com a entrada
-    ADCPORT &= ~((1 << ADC0) | (1 << ADC1) | (1 << ADC2)); // deshabilita resistencies pull-up
-
-    RDDR &= ~((1 << R0) | (1 << R1) | (1 << R2)); // resistencies sense cap voltage
-    RPORT &= ~((1 << R0) | (1 << R1) | (1 << R2)); // deshabilita resistencies pull-up
-
-    RHDDR &= ~((1 << RH0) | (1 << RH1) | (1 << RH2));
-    RHPORT &= ~((1 << RH0) | (1 << RH1) | (1 << RH2));*/
 
 	// configura pins a alta impedancia
 	tr_init();
@@ -297,23 +274,8 @@ uint8_t calculate_beta (struct bjt* tr)
 			BIT_SET(TP3_DDR, TP3);
 			BIT_CLEAR(TP3_PORT, TP3);
 		}
-
-		
-/*	   RHDDR |= (1 << (tr->base+RH_SHIFT));
-       RHPORT |= (1 << (tr->base+RH_SHIFT));
-
-    // configurem la resistencia de colector vcc
-       RDDR |= (1 << tr->colector);
-       RPORT |= (1 << tr->colector);
-
-    // posem emissor a massa
-       ADCDDR |= (1 << tr->emisor);
-       ADCPORT &= ~(1 << tr->emisor);
-       */
-	// formula per calcular beta amb npn
-	//_delay_ms(100);
-	//tr->beta = ReadAdc(tr->colector);
-	tr->beta = (uint16_t)(1000*((5)-(ReadAdc(tr->colector)*5/1024.0))/(5-0.7));
+		// formula per calcular la beta d'un transistor NPN
+		tr->beta = (uint16_t)(1000*((5)-(ReadAdc(tr->colector)*5/1024.0))/(5-0.7));
     }
     else if (tr->tipus == PNP)
     {
@@ -367,42 +329,15 @@ uint8_t calculate_beta (struct bjt* tr)
 			BIT_SET(TP3_DDR, TP3);
 			BIT_SET(TP3_PORT, TP3);
 		}
-		
- /*   // configurem la resistencia de base vcc
-       RHDDR |= (1 << (tr->base+RH_SHIFT));
-       RHPORT &= ~(1 << (tr->base+RH_SHIFT));
-
-    // configurem la resistencia de colector vcc
-       RDDR |= (1 << tr->colector);
-       RPORT &= ~(1 << tr->colector);
-
-    // posem emissor a massa
-       ADCDDR |= (1 << tr->emisor);
-       ADCPORT |= (1 << tr->emisor);
-  */
-  	// formula per calcular beta amb pnp
-  	//_delay_ms(100);
-  	//tr->beta = ReadAdc(tr->colector);
-	tr->beta = (uint16_t)(1000*((ReadAdc(tr->colector)*5/1024.0))/(5-0.7));
-
+		// formula per calcular la beta d'un transistor PNP
+		tr->beta = (uint16_t)(1000*((ReadAdc(tr->colector)*5/1024.0))/(5-0.7));
     }
 	tr_init();
-	
-//	while(1);
-	// configura pins a alta impedancia
-	//tr_init();
-/*    ADCDDR &= ~((1 << ADC0) | (1 << ADC1) | (1 << ADC2)); // ADC com a entrada
-    ADCPORT &= ~((1 << ADC0) | (1 << ADC1) | (1 << ADC2)); // deshabilita resistencies pull-up
-
-    RDDR &= ~((1 << R0) | (1 << R1) | (1 << R2)); // resistencies sense cap voltage
-    RPORT &= ~((1 << R0) | (1 << R1) | (1 << R2)); // deshabilita resistencies pull-up
-
-    RHDDR &= ~((1 << RH0) | (1 << RH1) | (1 << RH2));
-    RHPORT &= ~((1 << RH0) | (1 << RH1) | (1 << RH2)); */
 
     return 1;
 }
 
+// inicialitza el valor dels pins
 void tr_init(void)
 {
 	// pull-up desactivades

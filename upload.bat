@@ -1,0 +1,3 @@
+@TITLE PETIT SCRIPT PER COMPILAR
+make program
+@PAUSE

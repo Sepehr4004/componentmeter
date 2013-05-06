@@ -21,8 +21,8 @@ char string[16];
 struct bjt trt;
 struct res r;
 uint8_t j;
-polsador_t polsador;
-uint8_t flag_polsador;
+volatile polsador_t polsador;
+volatile uint8_t flag_polsador;
 
 #define BIT_SET(r,b) ((r)|=(1<<(b)))
 #define BIT_CLEAR(r,b) ((r)&=~(1<<(b)))
@@ -42,14 +42,14 @@ ISR(INT0_vect)
 {
 	flag_polsador = 1;
 	polsador = P_MES;
-   _delay_ms(10);
+   _delay_ms(100);
 }
 
 ISR(INT1_vect)
 {
 	flag_polsador = 1;
 	polsador = P_OK;
-   _delay_ms(10);
+   _delay_ms(100);
 }
 
 
@@ -71,6 +71,7 @@ void polsadors_init(void)
     // habilitem les interrupcions
     EIMSK |= (1<<INT1) | (1<<INT0);
 
+	// habilitem les interrupcions generals
     sei();
 }
 
@@ -78,42 +79,38 @@ void polsadors_init(void)
 // Programa principal
 int main(void)
 {
-   init_devices();
-   init_LC();
-   menu_init();
-   polsadors_init();
-   while(1)
-   {
-    LCDGotoXY(0,0);
-   /*LCDClear();*/
+   	//Inicialitza el display LCD
+   	LCDInit(LS_NONE);
+     
+   	//Neteja la pantalla
+   	LCDClear();
+    
+   	//Inicialitza el comptador
+   	freq_counter_init();
 
-/*
-    float calcul;
+   	// inicialitza el mesurador de inductancia i capacitat
+   	LC_init();
 
-    calcul = calcula_C();
+   	//inicialitza el mesurador de transistors
+   	tr_init();
 
-    sprintf(string,"freq: %f",calcul);
-    LCDWriteStringXY(0,0, string );
-  	_delay_ms(500);*/
-    //trt = transistor_check();
-    //sprintf(string, "%d %d %d", ReadAdc(1),ReadAdc(2),ReadAdc(3));
-    //LCDWriteString(string);*/
-/*	uint8_t res = calcula_r(&r);
+   	//inicialitza el mesurador de resistencia
+   	r_init();
+
+   	//inicialitza els polsadors i les interrupcions d'aquets
+   	polsadors_init();
+
 	
-	sprintf(string,"R:%lu",r.valor);
-    LCDClear();
-    LCDWriteString(string);
-    sprintf(string, "res = %d", res );
-    LCDGotoXY(0,1);
-    LCDWriteString(string);*/
-
-if (flag_polsador == 1)
-{
-	flag_polsador = 0;
-    menu(polsador);
-}
-
-}
+   	// inicialitza el menu del lcd
+	menu_init();
+   	while(1)
+   	{
+		if (flag_polsador == 1)
+		{
+			flag_polsador = 0;
+    		menu(polsador);
+		}
+	}
 
    return 0;
 }

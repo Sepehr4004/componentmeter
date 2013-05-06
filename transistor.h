@@ -1,9 +1,15 @@
-
+/*************************************
+ * Nom del arxiu: transistor.c
+ * Autor: Miguel Angel Borrego
+ * Data: 31/03/2013
+ * Compilador: WinAvr 20100110
+ * Descripció: Definicions i prototips
+ *  de funcions
+ **************************************/
 #ifndef _TRANSISTOR_H
 #define _TRANSISTOR_H
 
 // definicions de pins i ports
-
 #define TP1_PORT    PORTC
 #define TP1_DDR     (*(&TP1_PORT-1))
 #define TP1         1
@@ -16,7 +22,6 @@
 #define TP3_DDR     (*(&TP3_PORT-1))
 #define TP3         3
 
-// 
 #define RTL1_PORT   PORTC
 #define RTL1_DDR    (*(&RTL1_PORT-1))
 #define RTL1        0
@@ -29,7 +34,6 @@
 #define RTL3_DDR    (*(&RTL3_PORT-1))
 #define RTL3        2
 
-//
 #define RTH1_PORT   PORTB
 #define RTH1_DDR    (*(&RTH1_PORT-1))
 #define RTH1        5
@@ -42,24 +46,21 @@
 #define RTH3_DDR    (*(&RTH3_PORT-1))
 #define RTH3        1
 
-//
 #define PNP     1
 #define NPN     0
 
-
-// definicio d'estructures de dades
+// definim els components d'un transistor bjt
 struct bjt
 {
   uint8_t base;
   uint8_t colector;
   uint8_t emisor;
   uint16_t beta;
-
   uint8_t tipus; // PNP o NPN
 };
 
 // funcions
-struct bjt transistor_check(void);
+uint8_t transistor_check(struct bjt* transistor);
 uint16_t check (uint8_t high, uint8_t low);
 uint8_t calculate_beta (struct bjt* tr);
 void tr_init(void);

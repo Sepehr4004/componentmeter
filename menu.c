@@ -54,32 +54,35 @@ static uint8_t menu_flag = MENU1; //inicialment carreguem menu1
 char string[17];
 
 // funcions de lectura
-void llegir_transistor(void)
+static void llegir_transistor(void)
 {
 	struct bjt transistor;
 	char pins[3];
 	
-	transistor = transistor_check();
-	calculate_beta(&transistor);
-	pins[transistor.base-1] = 'B';
-	pins[transistor.colector-1] = 'C';
-	pins[transistor.emisor-1] = 'E';
-	
-	memset(string, '\0', sizeof(string));
-	sprintf(string, "1:%c 2:%c 3:%c %s", pins[0], pins[1], pins[2], transistor.tipus == NPN ? "NPN" : "PNP" );
-	LCDWriteStringXY(0, 0, string);
-	sprintf(string, "Beta:%4d       ", transistor.beta);
-	LCDWriteStringXY(0, 1, string);
+	if (transistor_check(&transistor))
+	{
+		calculate_beta(&transistor);
+		pins[transistor.base-1] = 'B';
+		pins[transistor.colector-1] = 'C';
+		pins[transistor.emisor-1] = 'E';
+		
+		sprintf(string, "1:%c 2:%c 3:%c %s", pins[0], pins[1], pins[2], 
+							transistor.tipus == NPN ? "NPN" : "PNP" );
+		LCDWriteStringXY(0, 0, string);
+		sprintf(string, "Beta:%4d       ", transistor.beta);
+		LCDWriteStringXY(0, 1, string);
+	}
 	
 }
 
-void llegir_condensador(void)
+static void llegir_condensador(void)
 {
 	float calcul;
 	char unitat;
 
 	calcul = calcula_C();
 
+    // ajusta la unitat del valor calculat
 	if (calcul<1.0)
 	{
    		calcul=calcul*1000.0;
@@ -96,42 +99,50 @@ void llegir_condensador(void)
 		unitat = 'u';
     }
 	
-	LCDClear();
-	sprintf(string,"C: %3.2f%cF",calcul,unitat);
+	sprintf(string,"C: %3.2f%cF     ",calcul,unitat);
     LCDWriteStringXY(0,0, string );
 }
 
-void llegir_inductancia(void)
+static void llegir_inductancia(void)
 {
 	float calcul;
 	char unitat;
 
-	calcul = calcula_L();
-
-	if (calcul<1.0)
+	if ( llegir_switch() == L )
 	{
-   		calcul=calcul*1000.0;
-        unitat = 'n';
-    }
-    else if ( calcul > 1000.0 )
-    {
-        calcul=calcul/1000.0;
-       	unitat = 'm';
+		// es calcula el valor de inductancia
+		calcul = calcula_L();
+
+		// ajusta la unitat del valor calculat
+		if (calcul<1.0)
+		{
+	   		calcul=calcul*1000.0;
+	        unitat = 'n';
+	    }
+	    else if ( calcul > 1000.0 )
+	    {
+	        calcul=calcul/1000.0;
+	       	unitat = 'm';
+	    }
+	    else 
+	    {
+			unitat = 'u';
+	    }
+		
+		sprintf(string,"L: %03.2f%cH     ",calcul,unitat);
+	    LCDWriteStringXY(0,0,string);
     }
     else 
     {
-		unitat = 'u';
+		sprintf(string, "ERROR -> SWITCH    ");
+		LCDWriteStringXY(0,0,string);
     }
-	
-	LCDClear();
-	sprintf(string,"L: %3.2f%cH",calcul,unitat);
-    LCDWriteStringXY(0,0, string );
 
 }
 
 
 
-void llegir_resistencia(void)
+static void llegir_resistencia(void)
 {
 	struct res r;
 	uint8_t i;
@@ -145,17 +156,17 @@ void llegir_resistencia(void)
 }
 
 // funcions de calibració
-void cal_condensador(void)
+static void cal_condensador(void)
 {
 	calibra_LC();
 }
 
-void cal_inductancia(void)
+static void cal_inductancia(void)
 {
 	calibra_LC();
 }
 
-void cal_resistencia(void)
+static void cal_resistencia(void)
 {
 
 }
@@ -178,7 +189,7 @@ void (*cal_f_ptr[4])(void) =
 };
 
 
-void menu1_print(uint8_t i)
+static void menu1_print(uint8_t i)
 {
     memset(string, '\0', sizeof(string));
     LCDClear();
@@ -186,7 +197,7 @@ void menu1_print(uint8_t i)
 	LCDWriteStringXY(0, 0, string);
 }
 
-void menu2_print(uint8_t i)
+static void menu2_print(uint8_t i)
 {
     memset(string, '\0', sizeof(string));
 	strcpy_P(string, (PGM_P)pgm_read_word(&(menu2_strings[i]))); // copiem el valor al string

@@ -5,8 +5,8 @@
 
 // Global variables
 volatile unsigned char overflow;
-uint32_t calfreq = 500000;
 
+// vector d'interrupció del comptador
 ISR(TIMER1_OVF_vect)
 {
    overflow++;
@@ -38,7 +38,6 @@ float freq_counter_read(void)
    
    // neteja valor timer1
    TCNT1 = 0; 
-   
 
    // neteja tots els flags escrivint un 1
    TIFR1 = 0xff;
@@ -55,8 +54,8 @@ float freq_counter_read(void)
    // deshabilitem la interrupcio 
    TIMSK1 &= ~(1 << TOIE1);
 
-   // calcula la freqüencia
-   freq = ((float)(overflow*65536)+TCNT1)/100.0; // freq en khz
+   // calcula la freqüencia en khz
+   freq = ((float)(overflow*65536)+TCNT1)/100.0;
    
    return freq;
    

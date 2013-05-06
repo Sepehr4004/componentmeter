@@ -1,18 +1,1 @@
----- float Matches (17 in 5 files) ----
-Freq_counter.c:float freq_counter_read(void)
-Freq_counter.c:   float freq = 0;
-Freq_counter.c:   freq = ((float)(overflow*65536)+TCNT1)/100.0; // freq en khz
-Freq_counter.h:float freq_counter_read(void);
-funcions_LC.c:float EEMEM freq0_cal = 0;
-funcions_LC.c:	float freq;
-funcions_LC.c:float calcula_C (void)
-funcions_LC.c:	float freq1;
-funcions_LC.c:	float freq0;
-funcions_LC.c:	float calcul;
-funcions_LC.c:float calcula_L (void)
-funcions_LC.c:	float freq1;
-funcions_LC.c:	float freq0;
-funcions_LC.c:	float calcul;
-funcions_LC.h:float calcula_C(void);
-funcions_LC.h:float calcula_L(void);
-Main.c:    float calcul;
+---- cli Matches (0 in 0 files) ----

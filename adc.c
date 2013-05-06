@@ -3,7 +3,6 @@
 
 uint16_t ReadAdc(uint8_t channel)
 {
-
    uint8_t result1, result2;
    
    channel = channel & 7; // get only 3 bits ADC0:7
@@ -13,18 +12,20 @@ uint16_t ReadAdc(uint8_t channel)
    //ADMUX = (1<<REFS0) | (1<<REFS1) | (channel); // 1.1V
    ADMUX = (1<<REFS0) | (channel); // 1.1V
    
-   ADCSRA = (1<<ADPS0) | (1<<ADPS2); // clock-preescaler
+   // clock preescaler al màxim
+   ADCSRA = (1<<ADPS0) | (1<<ADPS2); 
    
-   ADCSRA |= (1<<ADEN); // Enable adc
-   ADCSRA |= (1<<ADSC); // Start conversion
+   // habilita i comença conversió A/D
+   ADCSRA |= (1<<ADEN);
+   ADCSRA |= (1<<ADSC);
    
+   // esperem a que hagi finalitzat
    while ( !(ADCSRA & (1<<ADIF)));
-   
    ADCSRA |= (1<<ADIF);
-
-   result1 = ADCL; // reading ADCL blocks ADC
-   result2 = ADCH; // is necessary to read ADCH after
+   
+   // retornem el valor llegit
+   result1 = ADCL;
+   result2 = ADCH;
    
    return (result2<<8)+result1; // return ADCH:L
-
 }
